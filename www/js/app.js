@@ -16,7 +16,8 @@ angular.module('starter', ['ionic'])
 	});
 
   $scope.test = function() {
-    $http.post("http://localhost:3000/uploadpic2")
+    // $http.post("http://localhost:3000/uploadpic2")
+		$http.post("http://cake-translate.eu-gb.mybluemix.net/uploadpic2")
       .then(function(data) {
         $scope.results = data;
       });
@@ -41,7 +42,8 @@ angular.module('starter', ['ionic'])
 			options.fileKey="image";
 			options.fileName=imageData.split('/').pop();
 			ft = new FileTransfer();
-			ft.upload(imageData, "http://localhost:3000/uploadpic", function(r) {
+			// ft.upload(imageData, "http://localhost:3000/uploadpic", function(r) {
+			ft.upload(imageData, "http://cake-translate.eu-gb.mybluemix.net/uploadpic", function(r) {
 				$scope.$apply(function() {
 					$scope.results = JSON.parse(r.response);
 				});

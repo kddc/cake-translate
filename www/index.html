@@ -37,7 +37,7 @@
         <button type="file" class="button button-energized button-block" ng-click="selectPicture()">Select Picture</button>
         <button class="button button-energized button-block" ng-click="test()">Test Request</button>
 
-        <img ng-src="{{pic}}" class="selPicture">
+        <img ng-src="{{pic}}" class="selPicture" style="max-width:100%">
         <ion-list class="list-inset">
 					<ion-item ng-repeat="result in results">{{result}}</ion-item>
 				</ion-list>
