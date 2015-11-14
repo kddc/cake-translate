@@ -23,7 +23,7 @@
     <script src="js/app.js"></script>
     <script src="js/directives/file-change.js"></script>
   </head>
-  <body ng-app="cake-translate">
+  <body ng-app="cake-translate" ng-cloak="">
 
     <ion-pane ng-controller="MainCtrl">
       <ion-header-bar class="bar-stable">
@@ -31,38 +31,24 @@
       </ion-header-bar>
       <ion-content class="padding">
 
-        <!-- <div class="wa_upload">
-          <div class="button button-energized button-block">File Upload</div>
-          <input type="file" name="image">
-        </div> -->
-
-        {{ isWebView }}
-
-        <div ng-if="isBrowser">
+        <div ng-if="cordovaReady &amp;&amp; isBrowser">
           <form method="post" action="https://cake-translate.eu-gb.mybluemix.net/uploadpic" enctype="multipart/form-data">
-            <div class="button button-energized button-block" ng-click="test3($event)">File Upload</div>
-            <input style="display:none;" ng-model="pic" type="file" file-change="test2($event, files)">
+            <div class="button button-energized button-block" ng-click="triggerSelectPictureInBrowser($event)">File Upload</div>
+            <input style="display:none;" ng-model="pic" type="file" file-change="selectPictureInBrowser($event, files)">
           </form>
-          <img ng-src="{{ pic }}" class="selPicture" style="max-width:100%">
         </div>
 
-        <div ng-if="!isBrowser">
+        <div ng-if="cordovaReady &amp;&amp; !isBrowser">
           <button type="file" class="button button-energized button-block" ng-click="selectPicture()">Select Picture</button>
-          <button class="button button-energized button-block" ng-click="test()">Test Request</button>
+        </div>
 
+        <div>
           <img ng-src="{{ pic }}" class="selPicture" style="max-width:100%">
-          <ion-list class="list-inset">
-  					<ion-item ng-repeat="result in results">{{ result }}</ion-item>
-  				</ion-list>
         </div>
 
-        <div>
-          {{ log }}
-        </div>
-
-        <div>
-          {{ error }}
-        </div>
+        <ion-list class="list-inset">
+          <ion-item ng-repeat="result in results">{{ result.label_name }} ({{ result.label_score }})</ion-item>
+        </ion-list>
 
       </ion-content>
     </ion-pane>
