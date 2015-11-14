@@ -22,6 +22,7 @@
     <script src="js/ng-cordova.min.js"></script>
     <script src="js/app.js"></script>
     <script src="js/directives/file-change.js"></script>
+    <script src="js/directives/browser-upload-fallback.js"></script>
   </head>
   <body ng-app="cake-translate" ng-cloak="">
 
@@ -31,14 +32,25 @@
       </ion-header-bar>
       <ion-content class="padding">
 
-        <div ng-if="cordovaReady &amp;&amp; isBrowser">
+        <!-- deviceInformation - {{deviceInformation}} <br>
+        userAgent - {{userAgent}}<br>
+        isBrowser - {{isBrowser}}<br>
+        isWebView - {{isWebView}}<br>
+        isIPad - {{isIPad}}<br>
+        isIOS - {{isIOS}}<br>
+        isAndroid - {{isAndroid}}<br>
+        isWindowsPhone - {{isWindowsPhone}}<br>
+        currentPlatform - {{currentPlatform}}<br>
+        currentPlatformVersion - {{currentPlatformVersion}}<br> -->
+
+
+        <div ng-show="false">
           <form method="post" action="https://cake-translate.eu-gb.mybluemix.net/uploadpic" enctype="multipart/form-data">
-            <div class="button button-energized button-block" ng-click="triggerSelectPictureInBrowser($event)">File Upload</div>
-            <input style="display:none;" ng-model="pic" type="file" file-change="selectPictureInBrowser($event, files)">
+            <input browser-upload-fallback-element="" style="display:none;" ng-model="pic" type="file" file-change="selectPictureInBrowser($event, files)">
           </form>
         </div>
 
-        <div ng-if="cordovaReady &amp;&amp; !isBrowser">
+        <div>
           <button type="file" class="button button-energized button-block" ng-click="selectPicture()">Select Picture</button>
         </div>
 

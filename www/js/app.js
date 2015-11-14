@@ -17,20 +17,39 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
 	$scope.results = [];
 	$scope.cordovaReady = false;
 
+
+
 	$ionicPlatform.ready(function() {
 		$scope.$apply(function() {
 			$scope.cordovaReady = true;
-			$scope.isBrowser = !ionic.Platform.isWebView();
+
+			// $scope.userAgent = navigator.userAgent;
+			// $scope.isBrowser = false;//navigator.camera == undefined;
+			// $scope.deviceInformation = ionic.Platform.device();
+			// $scope.isWebView = ionic.Platform.isWebView();
+  		// $scope.isIPad = ionic.Platform.isIPad();
+  		// $scope.isIOS = ionic.Platform.isIOS();
+  		// $scope.isAndroid = ionic.Platform.isAndroid();
+  		// $scope.isWindowsPhone = ionic.Platform.isWindowsPhone();
+			// $scope.currentPlatform = ionic.Platform.platform();
+  		// $scope.currentPlatformVersion = ionic.Platform.version();
+
 		});
 	});
 
   $scope.selectPicture = function() {
-    navigator.camera.getPicture(onSuccess, onFail, {
-			quality: 50,
-			sourceType:Camera.PictureSourceType.PHOTOLIBRARY,
-			destinationType:Camera.DestinationType.FILE_URI,
-			encodingType: Camera.EncodingType.JPEG
-		});
+		try {
+	    navigator.camera.getPicture(onSuccess, onFail, {
+				quality: 50,
+				sourceType:Camera.PictureSourceType.PHOTOLIBRARY,
+				destinationType:Camera.DestinationType.FILE_URI,
+				encodingType: Camera.EncodingType.JPEG
+			});
+		} catch(e) {
+			//Wenn auswählen der Kamera oder Library fehl schlägt, fallback auslösen
+			var browserUploadFallbackElement = $rootScope.browserUploadFallbackElement;//.click();
+			browserUploadFallbackElement[0].click();
+		}
 
 		function onSuccess(imageData) {
 			var options, ft, image;
@@ -68,10 +87,6 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
 
 	// Für Browser View
 
-	$scope.triggerSelectPictureInBrowser = function(e) {
-		angular.element(e.target).next()[0].click()
-	}
-
 	$scope.selectPictureInBrowser = function(e, files) {
 		//Möglichkeit ausgewähltes Bild auch im Browser anzuzeigen
 		var fileReader = new FileReader();
@@ -86,7 +101,7 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
 		// Formular vom Browser aus abschicken
 		var fd = new FormData();
     fd.append('file', files[0]);
-    $http.post("http://localhost:3000/uploadpic", fd, {
+    $http.post("https://cake-translate.eu-gb.mybluemix.net/uploadpic", fd, {
         transformRequest: angular.identity,
         headers: {'Content-Type': undefined}
     })
