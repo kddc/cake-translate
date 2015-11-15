@@ -37,14 +37,29 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
 		});
 	});
 
-  $scope.selectPicture = function() {
+  $scope.selectPicture = function(vonKamera) {
 		try {
-	    navigator.camera.getPicture(onSuccess, onFail, {
-				quality: 50,
-				sourceType:Camera.PictureSourceType.PHOTOLIBRARY,
-				destinationType:Camera.DestinationType.FILE_URI,
-				encodingType: Camera.EncodingType.JPEG
-			});
+			if (vonKamera)
+			{
+				navigator.camera.getPicture(onSuccess, onFail, {
+					quality: 50,
+					sourceType:Camera.PictureSourceType.Camera,
+					destinationType:Camera.DestinationType.FILE_URI,
+					// allowEdit: true,
+					// encodingType: Camera.EncodingType.JPEG,
+					// saveToPhotoAlbum: false,
+				 // popoverOptions: Camera.PopoverOptions,
+				 cameraDirection: BACK
+				});
+			} else {
+				navigator.camera.getPicture(onSuccess, onFail, {
+					quality: 50,
+					sourceType:Camera.PictureSourceType.PHOTOLIBRARY,
+					destinationType:Camera.DestinationType.FILE_URI,
+					encodingType: Camera.EncodingType.JPEG
+				});
+			}
+
 		} catch(e) {
 			//Wenn auswählen der Kamera oder Library fehl schlägt, fallback auslösen
 			var browserUploadFallbackElement = $rootScope.browserUploadFallbackElement;//.click();
