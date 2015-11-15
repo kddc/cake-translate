@@ -3,7 +3,7 @@
 // angular.module is a global place for creating, registering and retrieving Angular modules
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
-angular.module('cake-translate', ['ionic', 'ngCordova'])
+angular.module('cake-translate', ['ionic', 'ngCordova', 'ngStorage', 'ng-persist'])
 .controller('MainCtrl', function(
 	$rootScope,
 	$scope,
@@ -12,7 +12,8 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
 	$http,
 	$cordovaCamera,
 	$cordovaFileTransfer,
-	$timeout) {
+	$timeout,
+	$persist) {
 
 	$scope.results = [];
 	$scope.cordovaReady = false;
@@ -45,11 +46,10 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
 					quality: 50,
 					sourceType:Camera.PictureSourceType.Camera,
 					destinationType:Camera.DestinationType.FILE_URI,
-					// allowEdit: true,
-					// encodingType: Camera.EncodingType.JPEG,
-					// saveToPhotoAlbum: false,
-				 // popoverOptions: Camera.PopoverOptions,
-				 cameraDirection: BACK
+					allowEdit: true,
+					encodingType: Camera.EncodingType.JPEG,
+					saveToPhotoAlbum: false,
+				  popoverOptions: Camera.PopoverOptions
 				});
 			} else {
 				navigator.camera.getPicture(onSuccess, onFail, {
@@ -93,6 +93,8 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
 				$ionicLoading.hide();
 				alert("Error");
 			});
+
+
 		};
 
     function onFail(message) {
@@ -128,6 +130,25 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
 			$ionicLoading.hide();
 			alert("Error");
     });
+	}
+
+	// speichern der Infos Bild und Text
+	$scope.savePictureWordsPair = function(){
+			$persist
+			.set("BildWoerter", 3, $scope.pic)
+			.then(function(){
+				alert("abgespeichert! key: " + $scope.pic.substr($scope.pic.lastIndexOf('/') + 1));
+			});
+	}
+
+	// lesen der gespeicherten Daten
+	$scope.loadPictureWordsPair = function(){
+		$persist
+		.get("BildWoerter", 3, 0)
+		.then(function(val){
+			alert("Wert:" + val);
+			$scope.pic = val;
+		});
 	}
 
 })
