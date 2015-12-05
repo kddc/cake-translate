@@ -21,6 +21,7 @@
     <!-- bower components -->
     <script src="bower_components/ngCordova/dist/ng-cordova.min.js"></script>
     <script src="bower_components/pouchdb/dist/pouchdb.min.js"></script>
+    <script src="bower_components/blob-util/dist/blob-util.min.js"></script>
 
     <!-- your app's js -->
     <script src="js/app.js"></script>
@@ -64,7 +65,6 @@
 
         <div>
           <img ng-src="{{ pic }}" class="selPicture" style="max-width:100%">
-
         </div>
 
         <ion-list class="list-inset">
@@ -73,14 +73,15 @@
 
         <!-- <ion-list class="list-inset"> -->
           <ion-item ng-repeat="row in allPairs">
-            <img ng-src="{{ row.doc.image }}" class="selPicture" style="max-width:100%">
-            {{row.doc.image}}
+            <img ng-src="data:image/jpeg;base64,{{ row.doc._attachments.file.data }}" class="selPicture" style="max-width:100%">
             <ion-list class="list-inset">
               <ion-item ng-repeat="word in row.doc.words track by $index">{{ word.label_source }} {{word.label_name}} ({{word.label_score}})</ion-item>
             </ion-list>
             <button type="file" class="button button-energized button-block" ng-click="removeImageWordsPair($index, row)">gespeichertes Set l&#xF6;schen</button>
           </ion-item>
         <!-- </ion-list> -->
+
+        {{ error }}
 
       </ion-content>
     </ion-pane>

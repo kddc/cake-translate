@@ -15,6 +15,8 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
 	$cordovaFile,
 	$timeout) {
 
+	var createBlob;
+
 	$scope.results = [];
 	$scope.cordovaReady = false;
 	var db = new PouchDB('WortBildPaare');
@@ -78,7 +80,7 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
 			});
 
 			$scope.results = [];
-			// $ionicLoading.show({template:'Sending to Watson...'});
+			$ionicLoading.show({template:'Sending to Watson...'});
 
 			options = new FileUploadOptions();
 			options.fileKey = "file";
@@ -89,8 +91,6 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
 			options.mimeType = "image/jpeg";
 			options.params = {};
 
-			movePic(imageData);
-
 			$cordovaFileTransfer.upload("https://cake-translate.eu-gb.mybluemix.net/uploadpic", imageData, options).then(function(r) {
 				var data = JSON.parse(r.response);
 				$scope.results = data.labels;
@@ -98,7 +98,8 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
 				$ionicLoading.hide();
 			}, function(err) {
 				$ionicLoading.hide();
-				alert("Error");
+				alert(err);
+				$scope.error = err;
 			});
 
 		};
@@ -116,7 +117,7 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
     fileReader.readAsDataURL(files[0]);
 		fileReader.onload = function(e) {
 	    $timeout(function() {
-	    	$scope.pic = e.target.result;
+				$scope.pic = e.target.result;
 	    });
     }
 
@@ -134,54 +135,51 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
     })
     .error(function(err){
 			$ionicLoading.hide();
-			alert("Error");
+			alert(err);
     });
 	}
 
 	// speichern der Infos Bild und Text
 	$scope.saveImageWordsPair = function(){
-		function convertImgToBlob(img, callback) {
-		 var canvas = document.createElement('canvas');
-		 var context = canvas.getContext('2d');
-		 context.drawImage(img, 0, 0);
-
-			// Warning: toBlob() isn't supported by every browser.
-			// You may want to use blob-util.
-		 canvas.toBlob(callback, 'image/jpg');
-		}
-
-		convertImgToBlob($scope.pic, function (blob) {
-			console.log(blob);
-		});
-
-
+		createBlob($scope.pic).then(function (blob) {
+			var id = new Date().toISOString();
 			var neuesBildWortePaar = {
-				_id: new Date().toISOString(),
+				_id: id,
 				// image: $scope.pic,
 				words: angular.toJson($scope.results),
 				_attachments: {
 					"file": {
-						content_type: 'image/jpg',
-						data: $scope.pic
+						content_type: blob.type,
+						data: blob
 					}
 				}
 			};
 			console.log(neuesBildWortePaar);
 			db.put(neuesBildWortePaar, function callback(err, result) {
-				debugger
 				if (!err) {
 					console.log("neues BildWorte-Paar abgespeichert! ID: " + neuesBildWortePaar._id)
 				}
-			})
-
+			});
+		}).catch(function (err) {
+		  alert(err);
+		});
 		// movePic($scope.pic);
+	}
+
+	createBlob = function(img) {
+		match = img.match("data:image/(jpeg|png);base64,");
+		if(match && match.length) {
+			return blobUtil.base64StringToBlob(img.replace(match[0], ""));
+		} else {
+			return blobUtil.imgSrcToBlob(img);
+		}
 	}
 
 	// lesen der gespeicherten Daten
 	// include_docs: inkl aller Daten eines jeden Dokuments
 	// descending: Sortierung der Einträge nach Id auf-/absteigend
 	$scope.loadAllImageWordsPairs = function() {
-		db.allDocs({include_docs: true, descending: true}, function(err, doc){
+		db.allDocs({include_docs: true, descending: true, attachments: true}, function(err, doc){
 			console.log(doc);
 			$scope.$apply(function() {
 				$scope.allPairs = doc.rows;
