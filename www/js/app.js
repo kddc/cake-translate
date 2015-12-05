@@ -3,7 +3,7 @@
 // angular.module is a global place for creating, registering and retrieving Angular modules
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
-angular.module('cake-translate', ['ionic', 'ngCordova', 'ngStorage', 'ng-persist'])
+angular.module('cake-translate', ['ionic', 'ngCordova'])
 .controller('MainCtrl', function(
 	$rootScope,
 	$scope,
@@ -12,18 +12,19 @@ angular.module('cake-translate', ['ionic', 'ngCordova', 'ngStorage', 'ng-persist
 	$http,
 	$cordovaCamera,
 	$cordovaFileTransfer,
-	$timeout,
-	$persist) {
+	$cordovaFile,
+	$timeout) {
 
 	$scope.results = [];
 	$scope.cordovaReady = false;
-
+	var db = new PouchDB('WortBildPaare');
+	var remoteCouch = false;
 
 
 	$ionicPlatform.ready(function() {
 		$scope.$apply(function() {
 			$scope.cordovaReady = true;
-
+			$scope.window = window;
 			// $scope.userAgent = navigator.userAgent;
 			// $scope.isBrowser = false;//navigator.camera == undefined;
 			// $scope.deviceInformation = ionic.Platform.device();
@@ -46,10 +47,10 @@ angular.module('cake-translate', ['ionic', 'ngCordova', 'ngStorage', 'ng-persist
 					quality: 50,
 					sourceType:Camera.PictureSourceType.Camera,
 					destinationType:Camera.DestinationType.FILE_URI,
-					allowEdit: true,
+					allowEdit: false,
 					encodingType: Camera.EncodingType.JPEG,
 					saveToPhotoAlbum: false,
-				  popoverOptions: Camera.PopoverOptions
+				  popoverOptions: CameraPopoverOptions
 				});
 			} else {
 				navigator.camera.getPicture(onSuccess, onFail, {
@@ -67,14 +68,17 @@ angular.module('cake-translate', ['ionic', 'ngCordova', 'ngStorage', 'ng-persist
 		}
 
 		function onSuccess(imageData) {
-			var options, ft, image;
+			var options, ft, image, path;
 
 			$scope.$apply(function() {
+				// path = imageData.toURL();//given by the success callback
+				// IOS_ASSETS_ABS_PATH = path.replace("file:///", "file:///private/");
+				// IOS_ASSETS_ABS_PATH += "www/";
 				$scope.pic = imageData;
 			});
 
 			$scope.results = [];
-			$ionicLoading.show({template:'Sending to Watson...'});
+			// $ionicLoading.show({template:'Sending to Watson...'});
 
 			options = new FileUploadOptions();
 			options.fileKey = "file";
@@ -85,15 +89,17 @@ angular.module('cake-translate', ['ionic', 'ngCordova', 'ngStorage', 'ng-persist
 			options.mimeType = "image/jpeg";
 			options.params = {};
 
+			movePic(imageData);
+
 			$cordovaFileTransfer.upload("https://cake-translate.eu-gb.mybluemix.net/uploadpic", imageData, options).then(function(r) {
 				var data = JSON.parse(r.response);
 				$scope.results = data.labels;
+
 				$ionicLoading.hide();
 			}, function(err) {
 				$ionicLoading.hide();
 				alert("Error");
 			});
-
 
 		};
 
@@ -133,25 +139,125 @@ angular.module('cake-translate', ['ionic', 'ngCordova', 'ngStorage', 'ng-persist
 	}
 
 	// speichern der Infos Bild und Text
-	$scope.savePictureWordsPair = function(){
-			$persist
-			.set("BildWoerter", 3, $scope.pic)
-			.then(function(){
-				alert("abgespeichert! key: " + $scope.pic.substr($scope.pic.lastIndexOf('/') + 1));
-			});
+	$scope.saveImageWordsPair = function(){
+		function convertImgToBlob(img, callback) {
+		 var canvas = document.createElement('canvas');
+		 var context = canvas.getContext('2d');
+		 context.drawImage(img, 0, 0);
+
+			// Warning: toBlob() isn't supported by every browser.
+			// You may want to use blob-util.
+		 canvas.toBlob(callback, 'image/jpg');
+		}
+
+		convertImgToBlob($scope.pic, function (blob) {
+			console.log(blob);
+		});
+
+
+			var neuesBildWortePaar = {
+				_id: new Date().toISOString(),
+				// image: $scope.pic,
+				words: angular.toJson($scope.results),
+				_attachments: {
+					"file": {
+						content_type: 'image/jpg',
+						data: $scope.pic
+					}
+				}
+			};
+			console.log(neuesBildWortePaar);
+			db.put(neuesBildWortePaar, function callback(err, result) {
+				debugger
+				if (!err) {
+					console.log("neues BildWorte-Paar abgespeichert! ID: " + neuesBildWortePaar._id)
+				}
+			})
+
+		// movePic($scope.pic);
 	}
 
 	// lesen der gespeicherten Daten
-	$scope.loadPictureWordsPair = function(){
-		$persist
-		.get("BildWoerter", 3, 0)
-		.then(function(val){
-			alert("Wert:" + val);
-			$scope.pic = val;
+	// include_docs: inkl aller Daten eines jeden Dokuments
+	// descending: Sortierung der Einträge nach Id auf-/absteigend
+	$scope.loadAllImageWordsPairs = function() {
+		db.allDocs({include_docs: true, descending: true}, function(err, doc){
+			console.log(doc);
+			$scope.$apply(function() {
+				$scope.allPairs = doc.rows;
+				angular.forEach($scope.allPairs, function(pair) {
+					pair.doc.words = JSON.parse(pair.doc.words);
+					// pair.doc.image = db.getAttachment(pair, "file");
+				});
+				console.log($scope.allPairs.length);
+			});
 		});
 	}
 
+	// spezifische Bild-Worte-Paarung anzeigen
+	// derzeit nicht benötigt
+	$scope.ShowImageWordsPair = function(currentPair){
+		$scope.$apply(function() {
+			  $scope.pic = currentPair.doc.image;
+				$scope.results = JSON.parse(currentPair.doc.words);
+				$scope.currentRow = currentPair;
+				console.log($scope.currentRow.id);
+			})
+	}
+
+	// entfernen eines Eintrags aus der Setliste
+	$scope.removeImageWordsPair = function(index, pair){
+			if(pair != null)
+			{
+				console.log(pair.id);
+				db.remove(pair.doc);
+				$scope.allPairs.splice(index,1);
+			}
+		}
+
+	// Foto zu Album hinzufügen
+	// function createFileEntry(fileURI) {
+	// 	$scope.window.resolveLocalFileSystemURL(fileURI, copyFile, fail);
+	// }
+	//
+	// function movePic(file){
+	//     $scope.window.resolveLocalFileSystemURI(file, resolveOnSuccess, resOnError);
+	// }
+
+	//Callback function when the file system uri has been resolved
+	function resolveOnSuccess(entry){
+		var d = new Date();
+    var n = d.getTime();
+    //new file name
+    var newFileName = n + ".jpg";
+    var myFolderApp = "imagesCT";
+
+		$scope.window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(fs) {
+				fs.root.getDirectory("imagesCT", {
+					create: true
+				},
+				function(directory) {
+						entry.moveTo(directory, newFileName,  successMove, resOnError);
+					},
+					resOnError);
+				},
+				resOnError);
+	}
+
+		//Callback function when the file has been moved successfully - inserting the complete path
+	function successMove(entry) {
+	    //Store imagepath in session for future use
+	    // like to store it in database
+	    sessionStorage.setItem('imagepath', entry.fullPath);
+	}
+
+	function resOnError(error) {
+	    alert(error.code);
+	}
+
 })
+
+
 .run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
