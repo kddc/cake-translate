@@ -3,7 +3,7 @@
 // angular.module is a global place for creating, registering and retrieving Angular modules
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
-angular.module('cake-translate', ['ionic', 'ngCordova', 'ngStorage', 'ng-persist'])
+angular.module('cake-translate', ['ionic', 'ngCordova'])
 .controller('MainCtrl', function(
 	$rootScope,
 	$scope,
@@ -12,18 +12,21 @@ angular.module('cake-translate', ['ionic', 'ngCordova', 'ngStorage', 'ng-persist
 	$http,
 	$cordovaCamera,
 	$cordovaFileTransfer,
-	$timeout,
-	$persist) {
+	$cordovaFile,
+	$timeout) {
+
+	var createBlob;
 
 	$scope.results = [];
 	$scope.cordovaReady = false;
-
+	var db = new PouchDB('WortBildPaare');
+	var remoteCouch = false;
 
 
 	$ionicPlatform.ready(function() {
 		$scope.$apply(function() {
 			$scope.cordovaReady = true;
-
+			$scope.window = window;
 			// $scope.userAgent = navigator.userAgent;
 			// $scope.isBrowser = false;//navigator.camera == undefined;
 			// $scope.deviceInformation = ionic.Platform.device();
@@ -46,10 +49,10 @@ angular.module('cake-translate', ['ionic', 'ngCordova', 'ngStorage', 'ng-persist
 					quality: 50,
 					sourceType:Camera.PictureSourceType.Camera,
 					destinationType:Camera.DestinationType.FILE_URI,
-					allowEdit: true,
+					allowEdit: false,
 					encodingType: Camera.EncodingType.JPEG,
 					saveToPhotoAlbum: false,
-				  popoverOptions: Camera.PopoverOptions
+				  popoverOptions: CameraPopoverOptions
 				});
 			} else {
 				navigator.camera.getPicture(onSuccess, onFail, {
@@ -67,7 +70,7 @@ angular.module('cake-translate', ['ionic', 'ngCordova', 'ngStorage', 'ng-persist
 		}
 
 		function onSuccess(imageData) {
-			var options, ft, image;
+			var options, ft, image, path;
 
 			$scope.$apply(function() {
 				$scope.pic = imageData;
@@ -88,12 +91,14 @@ angular.module('cake-translate', ['ionic', 'ngCordova', 'ngStorage', 'ng-persist
 			$cordovaFileTransfer.upload("https://cake-translate.eu-gb.mybluemix.net/uploadpic", imageData, options).then(function(r) {
 				var data = JSON.parse(r.response);
 				$scope.results = data.labels;
+				$scope.imageSize = data;
+
 				$ionicLoading.hide();
 			}, function(err) {
 				$ionicLoading.hide();
-				alert("Error");
+				alert(err);
+				$scope.error = err;
 			});
-
 
 		};
 
@@ -110,7 +115,7 @@ angular.module('cake-translate', ['ionic', 'ngCordova', 'ngStorage', 'ng-persist
     fileReader.readAsDataURL(files[0]);
 		fileReader.onload = function(e) {
 	    $timeout(function() {
-	    	$scope.pic = e.target.result;
+				$scope.pic = e.target.result;
 	    });
     }
 
@@ -124,34 +129,90 @@ angular.module('cake-translate', ['ionic', 'ngCordova', 'ngStorage', 'ng-persist
     })
     .success(function(data){
 			$scope.results = data.labels;
+			$scope.imageSize = data;
 			$ionicLoading.hide();
     })
     .error(function(err){
 			$ionicLoading.hide();
-			alert("Error");
+			alert(err);
     });
 	}
 
 	// speichern der Infos Bild und Text
-	$scope.savePictureWordsPair = function(){
-			$persist
-			.set("BildWoerter", 3, $scope.pic)
-			.then(function(){
-				alert("abgespeichert! key: " + $scope.pic.substr($scope.pic.lastIndexOf('/') + 1));
+	$scope.saveImageWordsPair = function(){
+		createBlob($scope.pic).then(function (blob) {
+			var id = new Date().toISOString();
+			var neuesBildWortePaar = {
+				_id: id,
+				// image: $scope.pic,
+				words: angular.toJson($scope.results),
+				_attachments: {
+					"file": {
+						content_type: blob.type,
+						data: blob
+					}
+				}
+			};
+			console.log(neuesBildWortePaar);
+			db.put(neuesBildWortePaar, function callback(err, result) {
+				if (!err) {
+					console.log("neues BildWorte-Paar abgespeichert! ID: " + neuesBildWortePaar._id)
+				}
 			});
-	}
-
-	// lesen der gespeicherten Daten
-	$scope.loadPictureWordsPair = function(){
-		$persist
-		.get("BildWoerter", 3, 0)
-		.then(function(val){
-			alert("Wert:" + val);
-			$scope.pic = val;
+		}).catch(function (err) {
+		  alert(err);
 		});
 	}
 
+	createBlob = function(img) {
+		match = img.match("data:image/(jpeg|png);base64,");
+		if(match && match.length) {
+			return blobUtil.base64StringToBlob(img.replace(match[0], ""));
+		} else {
+			return blobUtil.imgSrcToBlob(img);
+		}
+	}
+
+	// lesen der gespeicherten Daten
+	// include_docs: inkl aller Daten eines jeden Dokuments
+	// descending: Sortierung der Einträge nach Id auf-/absteigend
+	$scope.loadAllImageWordsPairs = function() {
+		db.allDocs({include_docs: true, descending: true, attachments: true}, function(err, doc){
+			console.log(doc);
+			$scope.$apply(function() {
+				$scope.allPairs = doc.rows;
+				angular.forEach($scope.allPairs, function(pair) {
+					pair.doc.words = JSON.parse(pair.doc.words);
+				});
+				console.log($scope.allPairs.length);
+			});
+		});
+	}
+
+	// spezifische Bild-Worte-Paarung anzeigen
+	// derzeit nicht benötigt
+	$scope.ShowImageWordsPair = function(currentPair){
+		$scope.$apply(function() {
+			  $scope.pic = currentPair.doc.image;
+				$scope.results = JSON.parse(currentPair.doc.words);
+				$scope.currentRow = currentPair;
+				console.log($scope.currentRow.id);
+			})
+	}
+
+	// entfernen eines Eintrags aus der Setliste
+	$scope.removeImageWordsPair = function(index, pair){
+			if(pair != null)
+			{
+				console.log(pair.id);
+				db.remove(pair.doc);
+				$scope.allPairs.splice(index,1);
+			}
+		}
+
 })
+
+
 .run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
