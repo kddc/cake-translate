@@ -52,14 +52,16 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
 					allowEdit: false,
 					encodingType: Camera.EncodingType.JPEG,
 					saveToPhotoAlbum: false,
-				  popoverOptions: CameraPopoverOptions
+				  popoverOptions: CameraPopoverOptions,
+					correctOrientation: true
 				});
 			} else {
 				navigator.camera.getPicture(onSuccess, onFail, {
 					quality: 50,
 					sourceType:Camera.PictureSourceType.PHOTOLIBRARY,
 					destinationType:Camera.DestinationType.FILE_URI,
-					encodingType: Camera.EncodingType.JPEG
+					encodingType: Camera.EncodingType.JPEG,
+					correctOrientation: true
 				});
 			}
 
