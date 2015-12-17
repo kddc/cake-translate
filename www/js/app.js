@@ -73,9 +73,6 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
 			var options, ft, image, path;
 
 			$scope.$apply(function() {
-				// path = imageData.toURL();//given by the success callback
-				// IOS_ASSETS_ABS_PATH = path.replace("file:///", "file:///private/");
-				// IOS_ASSETS_ABS_PATH += "www/";
 				$scope.pic = imageData;
 			});
 
@@ -94,6 +91,7 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
 			$cordovaFileTransfer.upload("https://cake-translate.eu-gb.mybluemix.net/uploadpic", imageData, options).then(function(r) {
 				var data = JSON.parse(r.response);
 				$scope.results = data.labels;
+				$scope.imageSize = data;
 
 				$ionicLoading.hide();
 			}, function(err) {
@@ -131,6 +129,7 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
     })
     .success(function(data){
 			$scope.results = data.labels;
+			$scope.imageSize = data;
 			$ionicLoading.hide();
     })
     .error(function(err){
@@ -163,7 +162,6 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
 		}).catch(function (err) {
 		  alert(err);
 		});
-		// movePic($scope.pic);
 	}
 
 	createBlob = function(img) {
@@ -185,7 +183,6 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
 				$scope.allPairs = doc.rows;
 				angular.forEach($scope.allPairs, function(pair) {
 					pair.doc.words = JSON.parse(pair.doc.words);
-					// pair.doc.image = db.getAttachment(pair, "file");
 				});
 				console.log($scope.allPairs.length);
 			});
@@ -212,46 +209,6 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
 				$scope.allPairs.splice(index,1);
 			}
 		}
-
-	// Foto zu Album hinzufügen
-	// function createFileEntry(fileURI) {
-	// 	$scope.window.resolveLocalFileSystemURL(fileURI, copyFile, fail);
-	// }
-	//
-	// function movePic(file){
-	//     $scope.window.resolveLocalFileSystemURI(file, resolveOnSuccess, resOnError);
-	// }
-
-	//Callback function when the file system uri has been resolved
-	function resolveOnSuccess(entry){
-		var d = new Date();
-    var n = d.getTime();
-    //new file name
-    var newFileName = n + ".jpg";
-    var myFolderApp = "imagesCT";
-
-		$scope.window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(fs) {
-				fs.root.getDirectory("imagesCT", {
-					create: true
-				},
-				function(directory) {
-						entry.moveTo(directory, newFileName,  successMove, resOnError);
-					},
-					resOnError);
-				},
-				resOnError);
-	}
-
-		//Callback function when the file has been moved successfully - inserting the complete path
-	function successMove(entry) {
-	    //Store imagepath in session for future use
-	    // like to store it in database
-	    sessionStorage.setItem('imagepath', entry.fullPath);
-	}
-
-	function resOnError(error) {
-	    alert(error.code);
-	}
 
 })
 
