@@ -27,6 +27,7 @@
     <script src="js/app.js"></script>
     <script src="js/directives/file-change.js"></script>
     <script src="js/directives/browser-upload-fallback.js"></script>
+    <script src="js/services/image.js"></script>
 
   </head>
   <body ng-app="cake-translate" ng-cloak="">
@@ -36,20 +37,6 @@
         <h1 class="title">Cake Translate</h1>
       </ion-header-bar>
       <ion-content class="padding">
-
-        <!-- deviceInformation - {{deviceInformation}} <br>
-        userAgent - {{userAgent}}<br>
-        isBrowser - {{isBrowser}}<br>
-        isWebView - {{isWebView}}<br>
-        isIPad - {{isIPad}}<br>
-        isIOS - {{isIOS}}<br>
-        isAndroid - {{isAndroid}}<br>
-        isWindowsPhone - {{isWindowsPhone}}<br>
-        currentPlatform - {{currentPlatform}}<br>
-        currentPlatformVersion - {{currentPlatformVersion}}<br> -->
-
-        {{ log }}
-
 
         <div ng-show="false">
           <form method="post" action="https://cake-translate.eu-gb.mybluemix.net/uploadpic" enctype="multipart/form-data">
@@ -66,8 +53,11 @@
         </div>
 
         <div>
-          Bildgroesse: {{ imageSize }}
-          <img ng-src="{{ pic }}" class="selPicture" style="max-width:100%">
+          Bildgroesse: {{ imageSize }} <span ng-if="imageSize">MB</span>
+        </div>
+
+        <div>
+          <img ng-src="{{ pic }}" class="selPicture" style="width:100%">
         </div>
 
         <ion-list class="list-inset">

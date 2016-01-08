@@ -14,6 +14,7 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
 	$cordovaFileTransfer,
 	$cordovaFile,
 	$timeout,
+	$image,
 	$q) {
 
 	var createBlob;
@@ -28,59 +29,8 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
 		$scope.$apply(function() {
 			$scope.cordovaReady = true;
 			$scope.window = window;
-			// $scope.userAgent = navigator.userAgent;
-			// $scope.isBrowser = false;//navigator.camera == undefined;
-			// $scope.deviceInformation = ionic.Platform.device();
-			// $scope.isWebView = ionic.Platform.isWebView();
-  		// $scope.isIPad = ionic.Platform.isIPad();
-  		// $scope.isIOS = ionic.Platform.isIOS();
-  		// $scope.isAndroid = ionic.Platform.isAndroid();
-  		// $scope.isWindowsPhone = ionic.Platform.isWindowsPhone();
-			// $scope.currentPlatform = ionic.Platform.platform();
-  		// $scope.currentPlatformVersion = ionic.Platform.version();
-
 		});
 	});
-
-	$scope.resize = function(image) {
-		var defer = $q.defer();
-	  var canvas = document.createElement('canvas');
-
-	  // var width = img.width;
-	  // var height = img.height;
-		//
-	  // // calculate the width and height, constraining the proportions
-	  // if (width > height) {
-	  //   if (width > max_width) {
-	  //     //height *= max_width / width;
-	  //     height = Math.round(height *= max_width / width);
-	  //     width = max_width;
-	  //   }
-	  // } else {
-	  //   if (height > max_height) {
-	  //     //width *= max_height / height;
-	  //     width = Math.round(width *= max_height / height);
-	  //     height = max_height;
-	  //   }
-	  // }
-
-	  // resize the canvas and draw the image data into it
-		var img = new Image;
-	 	img.src = URL.createObjectURL(image);
-		img.onload = function() {
-			canvas.width = 600;
-		  canvas.height = 400;
-		  var ctx = canvas.getContext("2d");
-			ctx.drawImage(img, 0, 0, 600, 400);
-			defer.resolve(canvas.toDataURL("image/jpeg",0.1));
-		}
-	  // canvas.width = 50;
-	  // canvas.height = 50;
-	  // var ctx = canvas.getContext("2d");
-	  // ctx.drawImage(img, 0, 0, 50, 50);
-	  // return canvas.toDataURL("image/jpeg",0.7); // get the data from canvas as 70% JPG (can be also PNG, etc.)
-		return defer.promise;
-	}
 
   $scope.selectPicture = function(vonKamera) {
 		try {
@@ -112,56 +62,19 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
 			browserUploadFallbackElement[0].click();
 		}
 
-		function onSuccess(imageData) {
-			var options, ft, image, path;
-
+		function onSuccess(image) {
 			$scope.$apply(function() {
-				$scope.pic = imageData;
+				$scope.pic = image;
 			});
 
-			$scope.results = [];
-			$ionicLoading.show({template:'Sending to Watson...'});
-
-			createBlob($scope.pic).then(function (blob) {
-				$scope.log = blob.type;
-				$scope.resize(blob).then(function (data) {
-					createBlob(data).then(function (blob) {
-						theBlob = blob;
-							// success
-						$ionicLoading.show({template:'Sending to Watson...'});
-
-						// Formular vom Browser aus abschicken
-						var fd = new FormData();
-						// console.log($scope.resize(files[0]));
-						// blob.lastModifiedDate = new Date();
-						// blob.name = "file.jpg";
-						// blob["type"] = "text/plain";
-						// var file = new File([blob], "file.jpg");
-						// console.log(blob);
-						// console.log(file);
-						// console.log(file);
-						console.log(theBlob);
-						// console.log(files[0]);
-						fd.append('file', theBlob);
-						// $http.post("http://localhost:3000/uploadpic", fd, {
-						$http.post("https://cake-translate.eu-gb.mybluemix.net/uploadpic", fd, {
-								transformRequest: angular.identity,
-								headers: {'Content-Type': undefined}
-						})
-						.success(function(data){
-							$scope.results = data.labels;
-							$scope.imageSize = data;
-							$ionicLoading.hide();
-						})
-						.error(function(err){
-							$ionicLoading.hide();
-							alert(err);
-						});
-
+			$image.toBlob(image).then(function (blob) {
+				$image.compress(blob).then(function (blob) {
+					$image.upload(blob).then(function(data) {
+						$scope.results = data.labels;
+						$scope.imageSize = data.size;
 					});
 				});
 			});
-
 		};
 
     function onFail(message) {
@@ -173,56 +86,17 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
 
 	$scope.selectPictureInBrowser = function(e, files) {
 		//Möglichkeit ausgewähltes Bild auch im Browser anzuzeigen
-		var fileReader = new FileReader();
-    fileReader.readAsDataURL(files[0]);
-		fileReader.onload = function(e) {
-	    $timeout(function() {
-				$scope.pic = e.target.result;
-				createBlob($scope.pic).then(function (blob) {
-					console.log(blob);
-					$scope.log = blob.type;
-					$scope.resize(blob).then(function (data) {
-						$scope.pic = data;
-						createBlob(data).then(function (blob) {
-							console.log(blob);
-							theBlob = blob;
-  							// success
-							$ionicLoading.show({template:'Sending to Watson...'});
-
-							// Formular vom Browser aus abschicken
-							var fd = new FormData();
-							// console.log($scope.resize(files[0]));
-							// blob.lastModifiedDate = new Date();
-							// blob.name = "file.jpg";
-							// blob["type"] = "text/plain";
-							// var file = new File([blob], "file.jpg");
-							// console.log(blob);
-							// console.log(file);
-							// console.log(file);
-							console.log(theBlob);
-							console.log(files[0]);
-					    fd.append('file', theBlob);
-							// $http.post("http://localhost:3000/uploadpic", fd, {
-					    $http.post("https://cake-translate.eu-gb.mybluemix.net/uploadpic", fd, {
-					        transformRequest: angular.identity,
-					        headers: {'Content-Type': undefined}
-					    })
-					    .success(function(data){
-								$scope.results = data.labels;
-								$scope.imageSize = data;
-								$ionicLoading.hide();
-					    })
-					    .error(function(err){
-								$ionicLoading.hide();
-								alert(err);
-					    });
-						});
+		$image.formDataToDataUrl(files[0]).then(function(image) {
+			$scope.pic = image;
+			$image.toBlob(image).then(function (blob) {
+				$image.compress(blob).then(function (blob) {
+					$image.upload(blob).then(function(data) {
+						$scope.results = data.labels;
+						$scope.imageSize = data.size;
 					});
 				});
-	    });
-    }
-
-
+			});
+		});
 	}
 
 	// speichern der Infos Bild und Text
@@ -249,27 +123,6 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
 		}).catch(function (err) {
 		  alert(err);
 		});
-	}
-
-	createBlob = function(img) {
-		var deferred = $q.defer();
-		var blob;
-		match = img.match("data:image/(jpeg|png);base64,");
-		if(match && match.length) {
-			blob = blobUtil.base64StringToBlob(img.replace(match[0], ""), "image/" + match[1]);
-		} else {
-			blob = blobUtil.imgSrcToBlob(img);
-		}
-		blob.then(function(blob) {
-			blob.lastModifiedDate = new Date();
-			if( blob.type = "image/jpeg" ) {
-				blob.name = Math.random().toString(36).substring(7) + ".jpg";
-			} else {
-				blob.name = Math.random().toString(36).substring(7) + ".png";
-			}
-			deferred.resolve(blob);
-		});
-		return deferred.promise;
 	}
 
 	// lesen der gespeicherten Daten
