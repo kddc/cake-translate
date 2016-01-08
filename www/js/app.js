@@ -13,31 +13,19 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
 	$cordovaCamera,
 	$cordovaFileTransfer,
 	$cordovaFile,
-	$timeout) {
-
-	var createBlob;
+	$timeout,
+	$image,
+	$storage,
+	$q) {
 
 	$scope.results = [];
 	$scope.cordovaReady = false;
-	var db = new PouchDB('WortBildPaare');
-	var remoteCouch = false;
 
 
 	$ionicPlatform.ready(function() {
 		$scope.$apply(function() {
 			$scope.cordovaReady = true;
 			$scope.window = window;
-			// $scope.userAgent = navigator.userAgent;
-			// $scope.isBrowser = false;//navigator.camera == undefined;
-			// $scope.deviceInformation = ionic.Platform.device();
-			// $scope.isWebView = ionic.Platform.isWebView();
-  		// $scope.isIPad = ionic.Platform.isIPad();
-  		// $scope.isIOS = ionic.Platform.isIOS();
-  		// $scope.isAndroid = ionic.Platform.isAndroid();
-  		// $scope.isWindowsPhone = ionic.Platform.isWindowsPhone();
-			// $scope.currentPlatform = ionic.Platform.platform();
-  		// $scope.currentPlatformVersion = ionic.Platform.version();
-
 		});
 	});
 
@@ -72,8 +60,6 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
 		}
 
 		function onSuccess(imageData) {
-			var options, ft, image, path;
-
 			$scope.$apply(function() {
 				$scope.pic = imageData;
 			});
@@ -85,29 +71,19 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
       alert('Failed because: ' + message);
     }
 
-		function sendingAppImageToWatson(imageData) {
-			$scope.results = [];
-			$ionicLoading.show({template:'Sending to Watson...'});
-
-			options = new FileUploadOptions();
-			options.fileKey = "file";
-			options.fileName = imageData.substr(imageData.lastIndexOf('/') + 1);
-			if (cordova.platformId == "android") {
-				options.fileName += ".jpg";
-			}
-			options.mimeType = "image/jpeg";
-			options.params = {};
-
-			$cordovaFileTransfer.upload("https://cake-translate.eu-gb.mybluemix.net/uploadpic", imageData, options).then(function(r) {
-				var data = JSON.parse(r.response);
-				$scope.results = data.labels;
-				$scope.imageSize = data;
-
-				$ionicLoading.hide();
-			}, function(err) {
-				$ionicLoading.hide();
-				$scope.onUploadFail('Upload failed. Want to retry?', sendingAppImageToWatson, imageData);
-				$scope.error = err;
+		function sendingAppImageToWatson(image) {
+			$image.toBlob(image).then(function (blob) {
+				$image.compress(blob).then(function (blob) {
+					$image.upload(blob).then(
+						function(data) {
+							$scope.results = data.labels;
+							$scope.imageSize = data.size;
+						},
+						function(err) {
+							$scope.onUploadFail('Upload failed. Want to retry?', sendingAppImageToWatson, image);
+						}
+					);
+				});
 			});
 		}
   }
@@ -116,36 +92,25 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
 
 	$scope.selectPictureInBrowser = function(e, files) {
 		//Möglichkeit ausgewähltes Bild auch im Browser anzuzeigen
-		var fileReader = new FileReader();
-    fileReader.readAsDataURL(files[0]);
-		fileReader.onload = function(e) {
-	    $timeout(function() {
-				$scope.pic = e.target.result;
-	    });
-    }
-
-		sendingBrowserImageToWatson(files);
-
-		function sendingBrowserImageToWatson(files) {			
-			$scope.results = [];
-			$ionicLoading.show({template:'Sending to Watson...'});
-			// Formular vom Browser aus abschicken
-			var fd = new FormData();
-			fd.append('file', files[0]);
-			$http.post("https://cake-translate.eu-gb.mybluemix.net/uploadpic", fd, {
-					transformRequest: angular.identity,
-					headers: {'Content-Type': undefined}
-			})
-			.success(function(data){
-				$scope.results = data.labels;
-				$scope.imageSize = data;
-				$ionicLoading.hide();
-			})
-			.error(function(err){
-				$ionicLoading.hide();
-				$scope.onUploadFail('Upload failed. Want to retry?', sendingBrowserImageToWatson, files);
-			});
-		}
+		$image.formDataToDataUrl(files[0]).then(function(image) {
+			$scope.pic = image;
+			sendingBrowserImageToWatson(image);
+			function sendingBrowserImageToWatson(image) {
+				$image.toBlob(image).then(function (blob) {
+					$image.compress(blob).then(function (blob) {
+						$image.upload(blob).then(
+							function(data) {
+								console.log(data);
+								$scope.results = data.labels;
+								$scope.imageSize = data.size;
+							}, function(err) {
+								$scope.onUploadFail('Upload failed. Want to retry?', sendingAppImageToWatson, image);
+							}
+						);
+					});
+				});
+			}
+		});
 	}
 
 	// confirmation Dialog mit Moeglichkeit des erneuten Uploads zu Watson
@@ -157,79 +122,24 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
 	}
 	// speichern der Infos Bild und Text
 	$scope.saveImageWordsPair = function(){
-		createBlob($scope.pic).then(function (blob) {
-			var id = new Date().toISOString();
-			var neuesBildWortePaar = {
-				_id: id,
-				// image: $scope.pic,
-				words: angular.toJson($scope.results),
-				_attachments: {
-					"file": {
-						content_type: blob.type,
-						data: blob
-					}
-				}
-			};
-			console.log("vor Speichern in DB" + neuesBildWortePaar);
-			db.put(neuesBildWortePaar, function callback(err, result) {
-				if (!err) {
-					console.log("neues BildWorte-Paar abgespeichert! ID: " + neuesBildWortePaar._id)
-					alert("New Image-Words-Pair successfully saved!");
-				}
-			});
-		}).catch(function (err) {
-		  alert(err);
-		});
-	}
-
-	createBlob = function(img) {
-		match = img.match("data:image/(jpeg|png);base64,");
-		if(match && match.length) {
-			return blobUtil.base64StringToBlob(img.replace(match[0], ""));
-		} else {
-			return blobUtil.imgSrcToBlob(img);
-		}
+		$storage.saveImageWordsPair($scope.pic, $scope.results);
 	}
 
 	// lesen der gespeicherten Daten
 	// include_docs: inkl aller Daten eines jeden Dokuments
 	// descending: Sortierung der Einträge nach Id auf-/absteigend
 	$scope.loadAllImageWordsPairs = function() {
-		$scope.pic = {};
-		$scope.results = [];
-
-		db.allDocs({include_docs: true, descending: true, attachments: true}, function(err, doc){
-			console.log(doc);
-			$scope.$apply(function() {
-				$scope.allPairs = doc.rows;
-				angular.forEach($scope.allPairs, function(pair) {
-					pair.doc.words = JSON.parse(pair.doc.words);
-				});
-				console.log($scope.allPairs.length);
-			});
+		$storage.loadAllImageWordsPairs().then(function(data) {
+			$scope.allPairs = data;
 		});
-	}
-
-	// spezifische Bild-Worte-Paarung anzeigen
-	// derzeit nicht benötigt
-	$scope.ShowImageWordsPair = function(currentPair){
-		$scope.$apply(function() {
-			  $scope.pic = currentPair.doc.image;
-				$scope.results = JSON.parse(currentPair.doc.words);
-				$scope.currentRow = currentPair;
-				console.log($scope.currentRow.id);
-			})
 	}
 
 	// entfernen eines Eintrags aus der Setliste
 	$scope.removeImageWordsPair = function(index, pair){
-			if(pair != null)
-			{
-				console.log(pair.id);
-				db.remove(pair.doc);
-				$scope.allPairs.splice(index,1);
-			}
-		}
+		$storage.removeImageWordsPair(index, pair).then(function(index) {
+			$scope.allPairs.splice(index,1);
+		});
+	}
 
 })
 
