@@ -27,8 +27,10 @@
     <script src="js/app.js"></script>
     <script src="js/directives/file-change.js"></script>
     <script src="js/directives/browser-upload-fallback.js"></script>
+    <script src="js/directives/text-to-speech.js"></script>
     <script src="js/services/image.js"></script>
     <script src="js/services/storage.js"></script>
+    <script src="js/services/environment.js"></script>
 
   </head>
   <body ng-app="cake-translate" ng-cloak="">
@@ -38,18 +40,6 @@
         <h1 class="title">Cake Translate</h1>
       </ion-header-bar>
       <ion-content class="padding">
-
-        <!-- deviceInformation - {{deviceInformation}} <br>
-        userAgent - {{userAgent}}<br>
-        isBrowser - {{isBrowser}}<br>
-        isWebView - {{isWebView}}<br>
-        isIPad - {{isIPad}}<br>
-        isIOS - {{isIOS}}<br>
-        isAndroid - {{isAndroid}}<br>
-        isWindowsPhone - {{isWindowsPhone}}<br>
-        currentPlatform - {{currentPlatform}}<br>
-        currentPlatformVersion - {{currentPlatformVersion}}<br> -->
-
 
         <div ng-show="false">
           <form method="post" action="https://cake-translate.eu-gb.mybluemix.net/uploadpic" enctype="multipart/form-data">
@@ -62,7 +52,7 @@
           <button type="file" class="button button-energized button-block" ng-click="selectPicture(true)">Take new Picture</button>
           <button type="file" class="button button-energized button-block" ng-click="saveImageWordsPair()">Set speichern</button>
           <button type="file" class="button button-energized button-block" ng-click="loadAllImageWordsPairs()">alle Sets laden</button>
-
+          <button class="button button-energized button-block" ng-click="audio()">audio</button>
         </div>
 
         <div>
@@ -71,7 +61,10 @@
 
         <!-- Ergebnisliste nach Watsonaufruf -->
         <ion-list class="list-inset">
-          <ion-item ng-repeat="result in results | orderBy: &apos;-label_score&apos; | limitTo: 3 ">{{ result.label_source }} {{ result.label_name }} ({{ result.label_score }})</ion-item>
+          <ion-item ng-repeat="result in results | orderBy: &apos;-label_score&apos; | limitTo: 3 ">
+            {{ result.label_name }} ({{ result.label_score }}) <small>{{ result.label_source }}</small>
+            <a href="" ng-click="result.play()" text-to-speech="result" style="display:none;float:right;">Play</a>
+          </ion-item>
         </ion-list>
 
         <!-- gespeicherte Sets -->
