@@ -5,7 +5,7 @@ blob-util
 
 `blob-util` is a [Blob](https://developer.mozilla.org/en-US/docs/Web/API/Blob?redirectlocale=en-US&redirectslug=DOM%2FBlob) library for busy people.
 
-It offers a tiny (~4KB min+gz) set of cross-browser utilities for translating Blobs to and from different formats:
+It offers a tiny (~3.5KB min+gz) set of cross-browser utilities for translating Blobs to and from different formats:
 
 * `<img/>` tags
 * base 64 strings
@@ -67,6 +67,8 @@ Blobs (<strong>b</strong>inary <strong>l</strong>arge <strong>ob</strong>jects) 
 
 Once you have a Blob, you can make it available offline by storing it in [IndexedDB](http://www.w3.org/TR/IndexedDB/), [PouchDB](http://pouchdb.com/), [LocalForage](https://mozilla.github.io/localForage/), or other in-browser databases. So it's the perfect format for working with offline images, sound, and video.
 
+A [File](https://developer.mozilla.org/en-US/docs/Web/API/File) is also a Blob. So if you have an `<input type="file">` in your page, you can let your users upload any file and then work with it as a Blob.
+
 ### Example
 
 Here's Kirby. He's a famous little Blob.
@@ -118,9 +120,9 @@ Warning: this API uses [Promises](https://promisesaplus.com/), because it's not 
 * [binaryStringToBlob(binary, type)](#binaryStringToBlob)
 * [blobToBase64String(blob)](#blobToBase64String)
 * [dataURLToBlob(dataURL)](#dataURLToBlob)
-* [imgSrcToDataURL(src, type, crossOrigin)](#imgSrcToDataURL)
-* [canvasToBlob(canvas, type)](#canvasToBlob)
-* [imgSrcToBlob(src, type, crossOrigin)](#imgSrcToBlob)
+* [imgSrcToDataURL(src, type, crossOrigin, quality)](#imgSrcToDataURL)
+* [canvasToBlob(canvas, type, quality)](#canvasToBlob)
+* [imgSrcToBlob(src, type, crossOrigin, quality)](#imgSrcToBlob)
 * [arrayBufferToBlob(buffer, type)](#arrayBufferToBlob)
 * [blobToArrayBuffer(blob)](#blobToArrayBuffer)
  
@@ -286,7 +288,7 @@ blobUtil.dataURLToBlob(dataURL).then(function (blob) {
 ```
 
 <a name="imgSrcToDataURL"></a>
-###imgSrcToDataURL(src, type, crossOrigin)
+###imgSrcToDataURL(src, type, crossOrigin, quality)
 Convert an image's <code>src</code> URL to a data URL by loading the image and painting
 it to a <code>canvas</code>. Returns a Promise.
 
@@ -299,6 +301,8 @@ will only paint the first frame of an animated GIF.
 - type `string` | `undefined` - the content type (optional, defaults to 'image/png')  
 - crossOrigin `string` | `undefined` - for CORS-enabled images, set this to
                                         'Anonymous' to avoid "tainted canvas" errors  
+- quality `number` | `undefined` - a number between 0 and 1 indicating image quality
+                                    if the requested type is 'image/jpeg' or 'image/webp'  
 
 **Returns**: `Promise` - Promise that resolves with the data URL string  
 
@@ -322,13 +326,15 @@ blobUtil.imgSrcToDataURL('http://some-other-site.com/img.jpg', 'image/jpeg',
 ```
 
 <a name="canvasToBlob"></a>
-###canvasToBlob(canvas, type)
+###canvasToBlob(canvas, type, quality)
 Convert a <code>canvas</code> to a <code>Blob</code>. Returns a Promise.
 
 **Params**
 
 - canvas `string`  
 - type `string` | `undefined` - the content type (optional, defaults to 'image/png')  
+- quality `number` | `undefined` - a number between 0 and 1 indicating image quality
+                                    if the requested type is 'image/jpeg' or 'image/webp'  
 
 **Returns**: `Promise` - Promise that resolves with the <code>Blob</code>  
 
@@ -355,7 +361,7 @@ blobUtil.canvasToBlob(canvas, 'image/webp').then(function (blob) {
 ```
 
 <a name="imgSrcToBlob"></a>
-###imgSrcToBlob(src, type, crossOrigin)
+###imgSrcToBlob(src, type, crossOrigin, quality)
 Convert an image's <code>src</code> URL to a <code>Blob</code> by loading the image and painting
 it to a <code>canvas</code>. Returns a Promise.
 
@@ -368,6 +374,8 @@ will only paint the first frame of an animated GIF.
 - type `string` | `undefined` - the content type (optional, defaults to 'image/png')  
 - crossOrigin `string` | `undefined` - for CORS-enabled images, set this to
                                         'Anonymous' to avoid "tainted canvas" errors  
+- quality `number` | `undefined` - a number between 0 and 1 indicating image quality
+                                    if the requested type is 'image/jpeg' or 'image/webp'  
 
 **Returns**: `Promise` - Promise that resolves with the <code>Blob</code>  
 
