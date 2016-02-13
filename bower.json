@@ -4,7 +4,8 @@
   "dependencies": {
     "ngCordova": "*",
     "pouchdb": "*",
-    "blob-util": "*"
+    "blob-util": "*",
+    "font-awesome": "fontawesome#~4.5.0"
   },
   "devDependencies": {
     "ionic": "driftyco/ionic-bower#1.1.1"
