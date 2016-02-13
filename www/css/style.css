@@ -1,15 +1,65 @@
-font-face {
-    font-family: 'fontawesome';
-    src:url('../bower_components/font-awesome/fonts/fontawesome-webfont.eot');
-    src:url('../bower_components/font-awesome/fonts/fontawesome-webfont.eot') format('embedded-opentype'),
-        url('../bower_components/font-awesome/fonts/fontawesome-webfont.woff') format('woff'),
-        url('../bower_components/font-awesome/fonts/fontawesome-webfont.ttf') format('truetype'),
-        url('../bower_components/font-awesome/fonts/fontawesome-webfont.svg') format('svg');
-    font-weight: normal;
-    font-style: normal;
+.button-large {
+  padding-top: 6px;
+  margin-left: 10px;
+  margin-right: 10px;
+  margin-top: 10px;
+  text-align: center;
 }
 
-.icon-camera-retro:before {
-    font-family: "fontawesome";
-    content: "\f030";
+.button-small {
+  padding: 0px;
+}
+
+.button-large-div {
+  text-align: center;
+}
+
+.list-without-bullets {
+  list-style-type: none;
+  padding: 0px;
+}
+
+.bs-row {
+  width: auto;
+  display: block;
+  padding: 0;
+}
+
+.setlist {
+  border-top: 3px solid gray;
+}
+.setlist .singleset {
+  border-bottom: 1px solid gray;
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+.span-one-row {
+  padding-right: 5px;
+  white-space: nowrap;
+  overflow: hidden;;
+  text-overflow: ellipsis;
+}
+
+.div-alignment-center {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.div-padding-left-null {
+  padding-left: 0px;
+}
+
+.img-wrap {
+  position: relative;
+}
+.img-wrap .close {
+  position: absolute;
+  top: -10px;
+  left: 10px;
+  z-index: 100;
+  background: white;
+  color: #4d0018;
+  /*opacity: inherit;*/
 }

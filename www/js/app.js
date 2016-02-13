@@ -39,6 +39,8 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
 		$scope.$apply(function() {
 			$scope.cordovaReady = true;
 			$scope.window = window;
+
+      $scope.loadAllImageWordsPairs();
 		});
 	});
 

@@ -6,6 +6,8 @@
     <title></title>
 
     <link href="lib/ionic/css/ionic.css" rel="stylesheet">
+    <link href="bower_components/font-awesome/css/font-awesome.css" rel="stylesheet">
+    <link href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
 
     <!-- IF using Sass (run gulp sass first), then uncomment below and remove the CSS includes above
@@ -47,11 +49,15 @@
           </form>
         </div>
 
-        <div>
-          <button type="file" class="button icon-left icon-camera-retro" ng-click="selectPicture(false)">Select Picture</button>
-          <button type="file" class="button button-energized button-large" ng-click="selectPicture(true)">Take new Picture</button>
-          <button type="file" class="button button-energized button-block" ng-click="saveImageWordsPair()">Set speichern</button>
-          <button type="file" class="button button-energized button-block" ng-click="loadAllImageWordsPairs()">alle Sets laden</button>
+        <div class="button-large-div">
+          <button type="file" class="button button-energized button-large" ng-click="selectPicture(true)">
+            <span class="fa fa-camera-retro fa-3x"></span>
+          </button>
+          <button type="file" class="button button-energized button-large" ng-click="selectPicture(false)">
+            <span class="fa fa-picture-o fa-3x"></span>
+          </button>
+          <!-- <button type="file" class="button button-energized button-block" ng-click="saveImageWordsPair()">Set speichern</button> -->
+          <!-- <button type="file" class="button button-energized button-block" ng-click="loadAllImageWordsPairs()">alle Sets laden</button> -->
         </div>
 
         <div>
@@ -59,24 +65,44 @@
         </div>
 
         <!-- Ergebnisliste nach Watsonaufruf -->
-        <ion-list class="list-inset">
-          <ion-item ng-repeat="result in results | orderBy: &apos;-label_score&apos; | limitTo: 3 ">
-            {{ result.label_name }} ({{ result.label_score }}) <small>{{ result.label_source }}</small>
-            <a href="" ng-click="result.play()" text-to-speech="result" style="display:none;float:right;">Play</a>
-          </ion-item>
-        </ion-list>
+        <div class="">
+          Ergebnisse
+          <ion-list class="list-inset">
+            <ion-item ng-repeat="result in results | orderBy: &apos;-label_score&apos; | limitTo: 3 ">
+              {{ result.label_name }} ({{ result.label_score }}) <small>{{ result.label_source }}</small>
+              <a href="" ng-click="result.play()" text-to-speech="result" style="display:none;float:right;">Play</a>
+            </ion-item>
+          </ion-list>
+        </div>
 
         <!-- gespeicherte Sets -->
         <!-- <ion-list class="list-inset"> -->
-          <ion-item ng-repeat="row in allPairs">
-            <img ng-src="data:image/jpeg;base64,{{ row.doc._attachments.file.data }}" class="selPicture" style="max-width:100%">
-            <ion-list class="list-inset">
-              <ion-item ng-repeat="word in row.doc.words | orderBy:&apos;-label_score&apos; | limitTo: 3 ">
-                {{ word.label_source }} {{word.label_name}} ({{word.label_score}})
-              </ion-item>
-            </ion-list>
-            <button type="file" class="button button-energized button-block" ng-click="removeImageWordsPair($index, row)">gespeichertes Set l&#xF6;schen</button>
-          </ion-item>
+        <ul class="list-without-bullets setlist">
+          <li class="singleset" ng-repeat="row in allPairs">
+            <div class="row bs-row">
+              <div class="col-xs-5 img-wrap">
+                <a class="close fa fa-close fa-lg" ng-click="removeImageWordsPair($index, row)"></a>
+                <img ng-src="data:image/jpeg;base64,{{ row.doc._attachments.file.data }}" class="selPicture" style="max-width:100%">
+              </div>
+              <div class="col-xs-7 div-padding-left-null">
+                <ul class="list-without-bullets">
+                  <li ng-repeat="word in row.doc.words | orderBy:&apos;-label_score&apos; | limitTo: 3 ">
+                    <div class="row bs-row">
+                      <div class="col-xs-12 div-alignment-center">
+                        <span class="span-one-row">{{ word.label_source }} {{word.label_name}} ({{word.label_score*100 | limitTo:2}}%)</span>
+                          <button type="file" class="button button-energized button-small" ng-click="selectPicture(false)">
+                            <span class="fa fa-volume-up fa-lg"></span>
+                          </button>
+                      </div>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- <button type="file" class="button button-energized button-block" ng-click="removeImageWordsPair($index, row)">gespeichertes Set l&#xF6;schen</button> -->
+          </li>
+        </ul>
         <!-- </ion-list> -->
 
         {{ error }}
