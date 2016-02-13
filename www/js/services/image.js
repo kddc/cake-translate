@@ -1,6 +1,6 @@
 angular
   .module('cake-translate')
-  .service('$image', ['$http', '$q', '$ionicLoading', function($http, $q, $ionicLoading) {
+  .service('$image', ['$http', '$q', '$ionicLoading', '$env', function($http, $q, $ionicLoading, $env) {
     var formDataToDataUrl, upload, toBlob, compress;
 
     formDataToDataUrl = function(formData) {
@@ -22,8 +22,8 @@ angular
       $ionicLoading.show({template:'Sending to Watson...'});
 
       fd.append('file', blob);
-      // $http.post("http://localhost:3000/uploadpic", fd, {
-      $http.post("https://cake-translate.eu-gb.mybluemix.net/uploadpic", fd, {
+      $http.post($env.endpoint + "/uploadpic", fd, {
+      // $http.post("https://cake-translate.eu-gb.mybluemix.net/uploadpic", fd, {
         transformRequest: angular.identity,
         headers: {'Content-Type': undefined}
       })

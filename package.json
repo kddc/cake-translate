@@ -24,6 +24,7 @@
     "cordova-plugin-file-transfer",
     "cordova-plugin-transport-security",
     "cordova-plugin-camera",
+    "cordova-plugin-media",
     "ionic-plugin-keyboard"
   ],
   "cordovaPlatforms": [

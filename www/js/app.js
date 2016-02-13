@@ -4,6 +4,17 @@
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
 angular.module('cake-translate', ['ionic', 'ngCordova'])
+.config(function($sceDelegateProvider) {
+  $sceDelegateProvider.resourceUrlWhitelist([
+    "self",
+    /(mp3|ogg)$/,
+  ]);
+})
+.filter('trustUrl', function ($sce) {
+  return function(url) {
+    return $sce.trustAsHtml(url);
+  };
+})
 .controller('MainCtrl', function(
 	$rootScope,
 	$scope,
@@ -13,10 +24,12 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
 	$cordovaCamera,
 	$cordovaFileTransfer,
 	$cordovaFile,
+  $cordovaMedia,
 	$timeout,
 	$image,
 	$storage,
-	$q) {
+	$q,
+	$sce) {
 
 	$scope.results = [];
 	$scope.cordovaReady = false;
@@ -87,6 +100,11 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
 			});
 		}
   }
+
+	$scope.audio = function(text) {
+    var audio = new Audio($env.endpoint + "/voice?text=" + text);
+    audio.play();
+	}
 
 	// Für Browser View
 
