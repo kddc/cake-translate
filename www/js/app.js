@@ -29,10 +29,26 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
 	$image,
 	$storage,
 	$q,
-	$sce) {
+	$sce,
+  $ionicModal) {
 
 	$scope.results = [];
 	$scope.cordovaReady = false;
+
+
+ $ionicModal.fromTemplateUrl('templates/results.html', {
+   scope: $scope
+ }).then(function(modal) {
+   $scope.modal = modal;
+ });
+
+ $scope.createContact = function(u) {
+   $scope.contacts.push({ name: u.firstName + ' ' + u.lastName });
+   $scope.modal.hide();
+ };
+
+
+
 
 
 	$ionicPlatform.ready(function() {
@@ -93,6 +109,7 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
 						function(data) {
 							$scope.results = data.labels;
 							$scope.imageSize = data.size;
+              $scope.modal.show();
 						},
 						function(err) {
 							$scope.onUploadFail('Upload failed. Want to retry?', sendingAppImageToWatson, image);
@@ -123,6 +140,7 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
 								console.log(data);
 								$scope.results = data.labels;
 								$scope.imageSize = data.size;
+                $scope.modal.show();
 							}, function(err) {
 								$scope.onUploadFail('Upload failed. Want to retry?', sendingAppImageToWatson, image);
 							}
@@ -143,6 +161,7 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
 	// speichern der Infos Bild und Text
 	$scope.saveImageWordsPair = function(){
 		$storage.saveImageWordsPair($scope.pic, $scope.results);
+    $scope.modal.hide();  
 	}
 
 	// lesen der gespeicherten Daten
@@ -150,7 +169,7 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
 	// descending: Sortierung der Einträge nach Id auf-/absteigend
 	$scope.loadAllImageWordsPairs = function() {
 		$storage.loadAllImageWordsPairs().then(function(data) {
-			$scope.allPairs = data;
+		$scope.allPairs = data
 		});
 	}
 

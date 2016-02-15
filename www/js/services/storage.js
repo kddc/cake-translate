@@ -7,7 +7,8 @@ angular
 
     // speichern der Infos Bild und Text
   	saveImageWordsPair = function(image, results) {
-  		$image.toBlob(image).then(function (blob) {
+    
+      $image.toBlob(image).then(function (blob) {
   			var id = new Date().toISOString();
   			var neuesBildWortePaar = {
   				_id: id,
@@ -24,12 +25,12 @@ angular
   			db.put(neuesBildWortePaar, function callback(err, result) {
   				if (!err) {
   					console.log("neues BildWorte-Paar abgespeichert! ID: " + neuesBildWortePaar._id)
-  					alert("New Image-Words-Pair successfully saved!");
   				}
   			});
   		}).catch(function (err) {
   		  alert(err);
   		});
+
   	}
 
   	// lesen der gespeicherten Daten

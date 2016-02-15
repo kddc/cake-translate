@@ -12,6 +12,12 @@
 
 .button-large-div {
   text-align: center;
+  margin-left: 15px;
+}
+
+.button-multiple-in-row {
+  display: flex;
+  justify-content: space-between;
 }
 
 .list-without-bullets {
@@ -27,6 +33,7 @@
 
 .setlist {
   border-top: 3px solid gray;
+  margin-top: 20px;
 }
 .setlist .singleset {
   border-bottom: 1px solid gray;
@@ -56,10 +63,10 @@
 }
 .img-wrap .close {
   position: absolute;
-  top: -10px;
+  top: -5px;
   left: 10px;
   z-index: 100;
-  background: white;
-  color: #4d0018;
-  /*opacity: inherit;*/
+  /*background: white;*/
+  color: #B52209;
+  opacity: inherit;
 }
