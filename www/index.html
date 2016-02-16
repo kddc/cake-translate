@@ -21,6 +21,7 @@
     <script src="cordova.js" type="text/javascript"></script>
 
     <!-- bower components -->
+    <script src="bower_components/lodash/dist/lodash.min.js" type="text/javascript"></script>
     <script src="bower_components/ngCordova/dist/ng-cordova.min.js" type="text/javascript"></script>
     <script src="bower_components/pouchdb/dist/pouchdb.min.js" type="text/javascript"></script>
     <script src="bower_components/blob-util/dist/blob-util.min.js" type="text/javascript"></script>
@@ -63,7 +64,7 @@
         <!-- gespeicherte Sets -->
         <!-- <ion-list class="list-inset"> -->
         <ul class="list-without-bullets setlist">
-          <li class="singleset" ng-repeat="row in allPairs">
+          <li class="singleset" ng-repeat="row in storage.imageWordPairs">
             <div class="row bs-row">
               <div class="col-xs-5 img-wrap">
                 <a class="close fa fa-close fa-lg" ng-click="removeImageWordsPair($index, row)"></a>
@@ -91,12 +92,6 @@
         <!-- </ion-list> -->
 
         {{ error }}
-
-
-
-
-
-
 
       </ion-content>
     </ion-pane>

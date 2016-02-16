@@ -6,7 +6,8 @@
     "pouchdb": "*",
     "blob-util": "*",
     "font-awesome": "fontawesome#~4.5.0",
-    "bootstrap": "*"
+    "bootstrap": "*",
+    "lodash": "*"
   },
   "devDependencies": {
     "ionic": "driftyco/ionic-bower#1.1.1"
