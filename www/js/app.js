@@ -32,30 +32,22 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
 	$sce,
   $ionicModal) {
 
-	$scope.results = [];
-	$scope.cordovaReady = false;
+  $scope.results = [];
+  $scope.allPairs = [];
+  $scope.cordovaReady = false;
 
-
- $ionicModal.fromTemplateUrl('templates/results.html', {
-   scope: $scope
- }).then(function(modal) {
-   $scope.modal = modal;
- });
-
- $scope.createContact = function(u) {
-   $scope.contacts.push({ name: u.firstName + ' ' + u.lastName });
-   $scope.modal.hide();
- };
-
-
-
-
+  $ionicModal.fromTemplateUrl('templates/results.html', {
+    scope: $scope
+  }).then(function(modal) {
+    $scope.modal = modal;
+  });
 
 	$ionicPlatform.ready(function() {
 		$scope.$apply(function() {
 			$scope.cordovaReady = true;
 			$scope.window = window;
 
+      $storage.onUpdateImageWordsPairs($scope.allPairs);
       $scope.loadAllImageWordsPairs();
 		});
 	});
@@ -160,16 +152,21 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
 	}
 	// speichern der Infos Bild und Text
 	$scope.saveImageWordsPair = function(){
-		$storage.saveImageWordsPair($scope.pic, $scope.results);
-    $scope.modal.hide();  
+		$storage.saveImageWordsPair($scope.pic, $scope.results).then(function(newImageWordsPair) {
+      $scope.modal.hide();
+      $storage.loadImageWordPair(newImageWordsPair.id).then(function(row) {
+        console.log(row);
+        $scope.allPairs.unshift(row);
+      });
+    });
 	}
 
 	// lesen der gespeicherten Daten
 	// include_docs: inkl aller Daten eines jeden Dokuments
 	// descending: Sortierung der Einträge nach Id auf-/absteigend
 	$scope.loadAllImageWordsPairs = function() {
-		$storage.loadAllImageWordsPairs().then(function(data) {
-		$scope.allPairs = data
+    $storage.loadAllImageWordsPairs().then(function(data) {
+		    // $scope.allPairs = data
 		});
 	}
 

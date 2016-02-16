@@ -100,38 +100,5 @@
 
       </ion-content>
     </ion-pane>
-
-
-    <script id="templates/results.html" type="text/ng-template">
-      <ion-modal-view>
-        <ion-header-bar class="bar-stable">
-          <h1 class="title">Ergebnisse</h1>
-        </ion-header-bar>
-        <ion-content class="padding">
-          <!-- Bild fuer Analyse -->
-          <div>
-            <img ng-src="{{ pic }}" class="selPicture" style="max-width:100%">
-          </div>
-
-          <!-- Ergebnisliste nach Watsonaufruf -->
-          <div class="">
-            <ion-list class="list-inset">
-              <ion-item ng-repeat="result in results | orderBy: &apos;-label_score&apos; | limitTo: 3 ">
-                {{ result.label_name }} ({{result.label_score*100 | limitTo:2}}%) <small>{{ result.label_source }}</small>
-                <a href="" ng-click="result.play()" text-to-speech="result" style="display:none;float:right;">Play</a>
-              </ion-item>
-            </ion-list>
-          </div>
-          <button type="file" class="col-xs-6 button icon-left button-assertive" ng-click="modal.hide()">Abbrechen
-            <span class="fa fa-close fa-lg"></span>
-          </button>
-            <button type="file" class="col-xs-6 button icon-left button-energized" ng-click="saveImageWordsPair()">Speichern
-              <span class="fa fa-list fa-lg"></span>
-            </button>
-        </ion-content>
-      </ion-modal-view>
-    </script>
-
-
   </body>
 </html>
