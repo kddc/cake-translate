@@ -20,6 +20,14 @@
   justify-content: space-between;
 }
 
+.selPicture {
+    max-width:100%;
+    max-height:50%;
+    display:block;
+    margin-left:auto;
+    margin-right:auto;
+}
+
 .list-without-bullets {
   list-style-type: none;
   padding: 0px;
@@ -36,9 +44,9 @@
   margin-top: 20px;
 }
 .setlist .singleset {
-  border-bottom: 1px solid gray;
-  padding-top: 15px;
-  padding-bottom: 15px;
+  /*border-bottom: 1px solid gray;*/
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
 
 .span-one-row {
@@ -69,4 +77,11 @@
   /*background: white;*/
   color: #B52209;
   opacity: inherit;
+}
+
+.img-div {
+  padding: 0px;
+  margin-left: 1px;
+  margin-right:1px;
+  background-color: white
 }

@@ -4,11 +4,29 @@
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
 angular.module('cake-translate', ['ionic', 'ngCordova'])
-.config(function($sceDelegateProvider) {
+.config(function($sceDelegateProvider, $stateProvider, $urlRouterProvider) {
   $sceDelegateProvider.resourceUrlWhitelist([
     "self",
     /(mp3|ogg)$/,
   ]);
+
+  $stateProvider
+    .state('tabs', {
+      url: "/results",
+      abstract: true,
+      templateUrl: "templates/results.html"
+    })
+    .state('tabs.home', {
+      url: "/index",
+      views: {
+        'home-tab': {
+          templateUrl: "index.html",
+          controller: 'MainCtrl'
+        }
+      }
+    });
+
+    $urlRouterProvider.otherwise("/index");
 })
 .filter('trustUrl', function ($sce) {
   return function(url) {
@@ -30,7 +48,21 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
 	$storage,
 	$q,
 	$sce,
-  $ionicModal) {
+  $ionicModal,
+  $env,
+  $ionicHistory,
+  $location) {
+
+    $scope.goBack = function() {
+     $backView = $ionicHistory.backView();
+     $backView.go();
+    };
+    $scope.go = function ( path ) {
+     $location.path( path );
+    };
+
+    console.log( JSON.stringify($ionicHistory.viewHistory(), null, 4) );
+
   $scope.storage = $storage;
   $storage.loadAllImageWordsPairs();
   $scope.results = [];
@@ -40,6 +72,12 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
     scope: $scope
   }).then(function(modal) {
     $scope.modal = modal;
+  });
+
+  $ionicModal.fromTemplateUrl('templates/singleview.html', {
+    scope: $scope
+  }).then(function(modal) {
+    $scope.singleview_modal = modal;
   });
 
 	$ionicPlatform.ready(function() {

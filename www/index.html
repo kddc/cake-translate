@@ -43,7 +43,8 @@
       <ion-header-bar class="bar-stable">
         <h1 class="title">Cake Translate</h1>
       </ion-header-bar>
-      <ion-content class="padding">
+
+      <ion-content class="padding" style="background-color: #E6EDE7">
 
         <div ng-show="false">
           <form method="post" action="https://cake-translate.eu-gb.mybluemix.net/uploadpic" enctype="multipart/form-data">
@@ -51,7 +52,7 @@
           </form>
         </div>
 
-        <div class="button-large-div row bs-row">
+        <div class="row bs-row button-large-div">
           <button type="file" class="col-xs-5 button button-energized button-large" ng-click="selectPicture(true)">
             <span class="fa fa-camera-retro fa-3x"></span>
           </button>
@@ -60,10 +61,25 @@
           </button>
         </div>
 
-
         <!-- gespeicherte Sets -->
-        <!-- <ion-list class="list-inset"> -->
-        <ul class="list-without-bullets setlist">
+        <div style="margin-top: 20px">
+          <ul class="list-without-bullets setlist">
+            <li class="singleset" ng-repeat="row in storage.imageWordPairs">
+              <div class="img-div">
+              <img ng-src="data:image/jpeg;base64,{{ row.doc._attachments.file.data }}" ng-click="singleview_modal.show()" class="selPicture">
+            </div>
+                <ion-list class="list-inset">
+                  <ion-item class="" ng-repeat="word in row.doc.words | orderBy:&apos;-label_score&apos; | limitTo: 3 ">
+                    {{word.label_name}} ({{word.label_score*100 | limitTo:2}}%)
+                    <a href="" class="fa fa-volume-up fa-lg" ng-click="audio(word.label_name)" style="float:right; vertical-align:middle"></a>
+                  </ion-item>
+                </ion-list>
+            </li>
+          </ul>
+        </div>
+
+
+        <!--<ul class="list-without-bullets setlist">
           <li class="singleset" ng-repeat="row in storage.imageWordPairs">
             <div class="row bs-row">
               <div class="col-xs-5 img-wrap">
@@ -75,11 +91,13 @@
                   <li ng-repeat="word in row.doc.words | orderBy:&apos;-label_score&apos; | limitTo: 3 ">
                     <div class="row bs-row">
                       <div class="col-xs-12 div-alignment-center">
-                        <span class="span-one-row">{{ word.label_source }} {{word.label_name}} ({{word.label_score*100 | limitTo:2}}%)</span>
-                          <button type="file" class="button button-energized button-small" ng-click="selectPicture(false)">
+                        <!-- <span class="span-one-row">{{ word.label_source }} {{word.label_name}} ({{word.label_score*100 | limitTo:2}}%)</span> -->
+                        <!-- <span class="span-one-row">{{word.label_name}} ({{word.label_score*100 | limitTo:2}}%)</span>
+                        <a href="" class="fa fa-volume-up fa-lg" ng-click="audio(word.label_name)" style="display:none;float:right;"></a> -->
+                          <!-- <button type="file" class="button button-energized button-small" ng-click="audio(word.label_name)">
                             <span class="fa fa-volume-up fa-lg"></span>
-                          </button>
-                      </div>
+                          </button> -->
+                      <!-- </div>
                     </div>
                   </li>
                 </ul>
@@ -87,9 +105,9 @@
             </div>
 
             <!-- <button type="file" class="button button-energized button-block" ng-click="removeImageWordsPair($index, row)">gespeichertes Set l&#xF6;schen</button> -->
-          </li>
-        </ul>
-        <!-- </ion-list> -->
+          <!-- </li>
+        </ul> -->
+
 
         {{ error }}
 

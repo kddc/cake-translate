@@ -11,9 +11,13 @@
     <!-- Ergebnisliste nach Watsonaufruf -->
     <div class="">
       <ion-list class="list-inset">
-        <ion-item ng-repeat="result in results | orderBy: &apos;-label_score&apos; | limitTo: 3 ">
-          {{ result.label_name }} ({{result.label_score*100 | limitTo:2}}%) <small>{{ result.label_source }}</small>
-          <a href="" ng-click="result.play()" text-to-speech="result" style="display:none;float:right;">Play</a>
+        <ion-item class="" ng-repeat="result in results | orderBy: &apos;-label_score&apos; | limitTo: 3 ">
+          <!-- {{ result.label_name }} ({{result.label_score*100 | limitTo:2}}%) <small>{{ result.label_source }}</small> -->
+          {{ result.label_name }} ({{result.label_score*100 | limitTo:2}}%)
+          <a href="" class="fa fa-volume-up fa-lg" ng-click="result.play()" text-to-speech="result" style="display:none;float:right;"></a>
+          <!-- <button type="file" class="button button-energized button-small" text-to-speech="result" ng-click="result.play()">
+            <span class="col-xs-4 fa fa-volume-up fa-lg"></span>
+          </button> -->
         </ion-item>
       </ion-list>
     </div>
