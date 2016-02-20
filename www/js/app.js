@@ -11,22 +11,19 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
   ]);
 
   $stateProvider
-    .state('tabs', {
-      url: "/results",
-      abstract: true,
-      templateUrl: "templates/results.html"
-    })
-    .state('tabs.home', {
-      url: "/index",
-      views: {
-        'home-tab': {
-          templateUrl: "index.html",
-          controller: 'MainCtrl'
+      .state('home', {
+        url: '/',
+        templateUrl: 'templates/home.html'
+      })
+      .state('single', {
+        url: '/single:indexCurrItem',
+        templateUrl: 'templates/singleview.html',
+        controller: function($scope, $stateParams) {
+          $scope.indexCurrItem = $stateParams.indexCurrItem;
         }
-      }
-    });
+      })
 
-    $urlRouterProvider.otherwise("/index");
+    $urlRouterProvider.otherwise("/");
 })
 .filter('trustUrl', function ($sce) {
   return function(url) {
@@ -50,18 +47,8 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
 	$sce,
   $ionicModal,
   $env,
-  $ionicHistory,
-  $location) {
-
-    $scope.goBack = function() {
-     $backView = $ionicHistory.backView();
-     $backView.go();
-    };
-    $scope.go = function ( path ) {
-     $location.path( path );
-    };
-
-    console.log( JSON.stringify($ionicHistory.viewHistory(), null, 4) );
+  $stateParams,
+  $state) {
 
   $scope.storage = $storage;
   $storage.loadAllImageWordsPairs();
@@ -72,12 +59,6 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
     scope: $scope
   }).then(function(modal) {
     $scope.modal = modal;
-  });
-
-  $ionicModal.fromTemplateUrl('templates/singleview.html', {
-    scope: $scope
-  }).then(function(modal) {
-    $scope.singleview_modal = modal;
   });
 
 	$ionicPlatform.ready(function() {

@@ -1,13 +1,25 @@
-<ion-view view-title="singleview">
-  <ion-nav-bar class="bar-positive">
+<ion-view view-title="">
+  <ion-nav-bar class="bar-stable">
     <ion-nav-buttons side="left">
-      <button class="button back-button buttons button-clear header-item" ng-click="goBack()">
-          <i class="icon ion-ios-arrow-back"> Back</i>
-      </button>
+      <a class="button back-button buttons button-clear header-item" ui-sref="home">
+          <i class="icon ion-ios-arrow-back"> zurück</i>
+      </a>
     </ion-nav-buttons>
   </ion-nav-bar>
 
-
+  <ion-content>
+    <!-- <div> -->
+      <img ng-src="data:image/jpeg;base64,{{ storage.imageWordPairs[indexCurrItem].doc._attachments.file.data }}" class="selPicture">
+    <!-- </div> -->
+    <!-- <div class=""> -->
+      <ion-list class="">
+        <ion-item class="" ng-repeat="word in storage.imageWordPairs[indexCurrItem].doc.words | orderBy:&apos;-label_score&apos; | limitTo: 3 ">
+          {{word.label_name}} ({{word.label_score*100 | limitTo:2}}%)
+          <a href="" class="fa fa-volume-up fa-lg" ng-click="audio(word.label_name)" style="float:right; vertical-align:middle"></a>
+        </ion-item>
+      </ion-list>
+    <!-- </div> -->
+  </ion-content>
 
 
 </ion-view>
