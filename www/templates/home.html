@@ -36,36 +36,6 @@
   </div>
 
 
-  <!--<ul class="list-without-bullets setlist">
-    <li class="singleset" ng-repeat="row in storage.imageWordPairs">
-      <div class="row bs-row">
-        <div class="col-xs-5 img-wrap">
-          <a class="close fa fa-close fa-lg" ng-click="removeImageWordsPair($index, row)"></a>
-          <img ng-src="data:image/jpeg;base64,{{ row.doc._attachments.file.data }}" class="selPicture" style="max-width:100%">
-        </div>
-        <div class="col-xs-7 div-padding-left-null">
-          <ul class="list-without-bullets">
-            <li ng-repeat="word in row.doc.words | orderBy:&apos;-label_score&apos; | limitTo: 3 ">
-              <div class="row bs-row">
-                <div class="col-xs-12 div-alignment-center">
-                  <!-- <span class="span-one-row">{{ word.label_source }} {{word.label_name}} ({{word.label_score*100 | limitTo:2}}%)</span> -->
-                  <!-- <span class="span-one-row">{{word.label_name}} ({{word.label_score*100 | limitTo:2}}%)</span>
-                  <a href="" class="fa fa-volume-up fa-lg" ng-click="audio(word.label_name)" style="display:none;float:right;"></a> -->
-                    <!-- <button type="file" class="button button-energized button-small" ng-click="audio(word.label_name)">
-                      <span class="fa fa-volume-up fa-lg"></span>
-                    </button> -->
-                <!-- </div>
-              </div>
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- <button type="file" class="button button-energized button-block" ng-click="removeImageWordsPair($index, row)">gespeichertes Set l&#xF6;schen</button> -->
-    <!-- </li>
-  </ul> -->
-
-
   {{ error }}
 
   </ion-content>

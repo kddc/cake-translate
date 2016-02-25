@@ -65,13 +65,13 @@ angular
 
     	// entfernen eines Eintrags aus der Setliste
     	removeImageWordsPair: function(index, pair){
-        var deferred = $q.defer();
+        // var deferred = $q.defer();
         if(pair != null) {
   				console.log(pair.id);
   				db.remove(pair.doc);
-          deferred.resolve(index);
+          // deferred.resolve(index);
   			}
-        return deferred.promise;
+        // return deferred.promise;
   		}
     };
 

@@ -19,7 +19,7 @@ angular
       var deferred = $q.defer();
       var fd = new FormData();
 
-      $ionicLoading.show({template:'analyzing image...'});
+      $ionicLoading.show({template:'analysiere Bild...'});
 
       fd.append('file', blob);
       $http.post($env.endpoint + "/uploadpic", fd, {

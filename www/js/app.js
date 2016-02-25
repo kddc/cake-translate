@@ -48,7 +48,10 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
   $ionicModal,
   $env,
   $stateParams,
-  $state) {
+  $state,
+  // $actionsheet,
+  $ionicActionSheet
+  ) {
 
   $scope.storage = $storage;
   $storage.loadAllImageWordsPairs();
@@ -69,6 +72,24 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
       // $scope.loadAllImageWordsPairs();
 		});
 	});
+
+  $scope.showDeleteSheet = function(index, pair) {
+
+     // Show the action sheet
+     var hideSheet = $ionicActionSheet.show({
+       destructiveText: 'Löschen',
+       cancelText: 'Abbrechen',
+       cancel: function() {
+            hideSheet();
+          },
+       destructiveButtonClicked: function() {
+         $scope.removeImageWordsPair(index, pair)
+         $state.go('home');
+         return true;
+       }
+     });
+
+   };
 
   $scope.selectPicture = function(vonKamera) {
 		try {
@@ -122,7 +143,7 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
               $scope.modal.show();
 						},
 						function(err) {
-							$scope.onUploadFail('Upload failed. Want to retry?', sendingAppImageToWatson, image);
+							$scope.onUploadFail('Upload fehlgeschlagen. Noch einmal probieren?', sendingAppImageToWatson, image);
 						}
 					);
 				});
@@ -152,7 +173,7 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
 								$scope.imageSize = data.size;
                 $scope.modal.show();
 							}, function(err) {
-								$scope.onUploadFail('Upload failed. Want to retry?', sendingAppImageToWatson, image);
+								$scope.onUploadFail('Upload fehlgeschlagen. Noch einmal probieren?', sendingAppImageToWatson, image);
 							}
 						);
 					});
@@ -189,6 +210,11 @@ angular.module('cake-translate', ['ionic', 'ngCordova'])
 		// });
     $storage.removeImageWordsPair(index, pair);
 	}
+
+  // // aufrufen des Lösch-Menüs für ein Set
+	// $scope.showDeleteSheet = function(){
+	// 	$actionsheet.showDeleteSheet();
+	// }
 
 })
 
